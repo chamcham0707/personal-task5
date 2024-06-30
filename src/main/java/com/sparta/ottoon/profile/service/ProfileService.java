@@ -36,6 +36,7 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileResponseDto getUser(String userName) {
         User user = findByUsername(userName);
+
         return new ProfileResponseDto(user);
     }
 

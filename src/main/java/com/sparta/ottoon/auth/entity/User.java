@@ -38,6 +38,8 @@ public class User extends Timestamped implements UserDetails {
     @Column
     private String refreshToken;
     private Long kakaoId;
+    private int postLikeCount = 0;
+    private int commentLikeCount = 0;
 
     public User(String username, String nickname, String password, String email, UserStatus status) {
         this.username = username;
@@ -96,4 +98,19 @@ public class User extends Timestamped implements UserDetails {
         this.status =  userStatus;
             }
 
+    public void increasePostLikeCount() {
+        ++this.postLikeCount;
+    }
+
+    public void decreasePostLikeCount() {
+        --this.postLikeCount;
+    }
+
+    public void increaseCommentLikeCount() {
+        ++this.commentLikeCount;
+    }
+
+    public void decreaseCommentLikeCount() {
+        --this.commentLikeCount;
+    }
 }

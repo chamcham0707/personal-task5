@@ -23,7 +23,7 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        QueryResults<Post> results = jpaQueryFactory
+        return jpaQueryFactory
                 .select(post)
                 .from(postLike)
                 .join(postLike.post, post)
@@ -31,8 +31,6 @@ public class PostLikeRepositoryCustomImpl implements PostLikeRepositoryCustom {
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetchResults();
-
-        return results.getResults();
+                .fetch();
     }
 }

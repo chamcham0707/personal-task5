@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class CommentResponseDto {
     private Long commentId;
     private String comment;
-    private Long likeCount;
+    private int likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 

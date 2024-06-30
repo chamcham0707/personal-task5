@@ -20,7 +20,7 @@ public class Comment extends Timestamped {
     @Column(nullable = false)
     private String comment;
 
-    private Long likeCount = 0L;
+    private int likeCount = 0;
 
     @ManyToOne
     @JoinColumn(name="user_id")

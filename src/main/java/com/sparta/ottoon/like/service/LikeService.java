@@ -38,10 +38,12 @@ public class LikeService {
         Optional<PostLike> existingLike = postLikeRepository.findByIdAndUser(postId, user);
         if (existingLike.isPresent()) {
             post.decreaseLikecount();
+            user.decreasePostLikeCount();
             postLikeRepository.delete(existingLike.get());
             return "게시글 좋아요 삭제 완료";
         } else {
             post.increaseLikeCount();
+            user.increasePostLikeCount();
             PostLike like = new PostLike(user, post);
             postLikeRepository.save(like);
             return "게시글 좋아요 완료";
@@ -58,10 +60,12 @@ public class LikeService {
         Optional<CommentLike> existingLike = commentLikeRepository.findByIdAndUser(comment.getId(), user);
         if (existingLike.isPresent()) {
             comment.decreaseLikeCount();
+            user.decreaseCommentLikeCount();
             commentLikeRepository.delete(existingLike.get());
             return "댓글 좋아요 삭제 완료";
         } else {
             comment.increaseLikeCount();
+            user.increaseCommentLikeCount();
             CommentLike like = new CommentLike(user, comment);
             commentLikeRepository.save(like);
             return "댓글 좋아요 완료";

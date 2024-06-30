@@ -31,7 +31,7 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private boolean isTop;
 
-    private Long likeCount = 0L;
+    private int likeCount = 0;
 
     public Post(String contents) {
         this.contents = contents;

@@ -55,11 +55,13 @@ public class LikeService {
         if(comment.getUser().getId() == user.getId()){
             throw new CustomException(ErrorCode.FAIL_COMMENTSELF);
         }
-        Optional<CommentLike> existingLike = commentLikeRepository.findByUser(user);
+        Optional<CommentLike> existingLike = commentLikeRepository.findByIdAndUser(comment.getId(), user);
         if (existingLike.isPresent()) {
+            comment.decreaseLikeCount();
             commentLikeRepository.delete(existingLike.get());
             return "댓글 좋아요 삭제 완료";
         } else {
+            comment.increaseLikeCount();
             CommentLike like = new CommentLike(user, comment);
             commentLikeRepository.save(like);
             return "댓글 좋아요 완료";
@@ -68,13 +70,11 @@ public class LikeService {
 
     public String getLikeComment(Long commentId){
         Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CustomException(ErrorCode.FAIL_GETCOMMENT));
-        Long likes = commentLikeRepository.countByComment(comment);
-        return "commentid" + comment.getId() + "\n좋아요 :" + likes;
+        return "commentid" + comment.getId() + "\n좋아요 :" + comment.getLikeCount();
     }
 
     public String getLikePost(Long postId){
         Post post = postRepository.findById(postId).orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
-        Long likes = postLikeRepository.countByPost(post);
-        return "postId" + post.getId() + "\n좋아요 :" + likes;
+        return "postId" + post.getId() + "\n좋아요 :" + post.getLikeCount();
     }
 }

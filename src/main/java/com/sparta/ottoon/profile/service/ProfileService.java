@@ -5,8 +5,11 @@ import com.sparta.ottoon.auth.entity.User;
 import com.sparta.ottoon.auth.entity.UserStatus;
 import com.sparta.ottoon.auth.repository.PasswordLogRepository;
 import com.sparta.ottoon.auth.repository.UserRepository;
+import com.sparta.ottoon.comment.dto.CommentResponseDto;
+import com.sparta.ottoon.comment.entity.Comment;
 import com.sparta.ottoon.common.exception.CustomException;
 import com.sparta.ottoon.common.exception.ErrorCode;
+import com.sparta.ottoon.like.repository.CommentLikeRepository;
 import com.sparta.ottoon.like.repository.PostLikeRepository;
 import com.sparta.ottoon.post.dto.PostResponseDto;
 import com.sparta.ottoon.post.entity.Post;
@@ -28,6 +31,7 @@ public class ProfileService {
     private final PasswordLogRepository passwordLogRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostLikeRepository postLikeRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     @Transactional(readOnly = true)
     public ProfileResponseDto getUser(String userName) {
@@ -85,6 +89,14 @@ public class ProfileService {
         List<Post> likePostList = postLikeRepository.findByUserReturnPosts(user, pageNumber, 5);
 
         return likePostList.stream().map(p -> PostResponseDto.toDto("성공적으로 조회하였습니다.", 200, p)).toList();
+    }
+
+    public List<CommentResponseDto> getCommentLikeList(String userName, int pageNumber) {
+        User user = findByUsername(userName);
+
+        List<Comment> likeCommentList = commentLikeRepository.findByUserReturnComments(user, pageNumber, 5);
+
+        return likeCommentList.stream().map(CommentResponseDto::new).toList();
     }
 
     private User findByUsername(String userName) {

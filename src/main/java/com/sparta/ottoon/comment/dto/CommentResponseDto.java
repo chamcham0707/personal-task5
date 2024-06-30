@@ -16,14 +16,7 @@ public class CommentResponseDto {
     public CommentResponseDto(Comment comment) {
         this.commentId = comment.getId();
         this.comment = comment.getComment();
-        this.createdAt = comment.getCreatedAt();
-        this.modifiedAt = comment.getModifiedAt();
-    }
-
-    public CommentResponseDto(Comment comment, Long likeCount) {
-        this.commentId = comment.getId();
-        this.comment = comment.getComment();
-        this.likeCount = likeCount;
+        this.likeCount = comment.getLikeCount();
         this.createdAt = comment.getCreatedAt();
         this.modifiedAt = comment.getModifiedAt();
     }

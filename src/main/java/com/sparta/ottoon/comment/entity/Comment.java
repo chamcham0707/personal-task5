@@ -20,6 +20,8 @@ public class Comment extends Timestamped {
     @Column(nullable = false)
     private String comment;
 
+    private Long likeCount = 0L;
+
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
@@ -36,5 +38,13 @@ public class Comment extends Timestamped {
     }
     public void updateComment(String comment){
         this.comment = comment;
+    }
+
+    public void increaseLikeCount() {
+        ++this.likeCount;
+    }
+
+    public void decreaseLikeCount() {
+        --this.likeCount;
     }
 }

@@ -1,5 +1,6 @@
 package com.sparta.ottoon.profile.controller;
 
+import com.sparta.ottoon.comment.dto.CommentResponseDto;
 import com.sparta.ottoon.post.dto.PostResponseDto;
 import com.sparta.ottoon.profile.dto.ProfileRequestDto;
 import com.sparta.ottoon.profile.dto.ProfileResponseDto;
@@ -52,5 +53,11 @@ public class ProfileController {
     public ResponseEntity<List<PostResponseDto>> getPostLikeList(@PathVariable String userName,
                                                                  @RequestParam int pageNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getPostLikeList(userName, pageNumber));
+    }
+
+    @GetMapping("/commentLikeList")
+    public ResponseEntity<List<CommentResponseDto>> getCommentLikeList(@PathVariable String userName,
+                                                                       @RequestParam int pageNumber) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getCommentLikeList(userName, pageNumber));
     }
 }

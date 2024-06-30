@@ -23,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final ProfileService profileService;
@@ -52,7 +51,7 @@ public class CommentService {
         // 해당 post 조회
         List<Comment> commentList = commentRepository.findByPostId(post.getId());
 
-        return commentList.stream().map(c -> new CommentResponseDto(c, commentLikeRepository.countByComment(c))).toList();
+        return commentList.stream().map(CommentResponseDto::new).toList();
     }
 
     @Transactional

@@ -1,13 +1,6 @@
 package com.sparta.ottoon.like.controller;
 
-import com.sparta.ottoon.auth.entity.User;
-import com.sparta.ottoon.auth.service.UserService;
-import com.sparta.ottoon.comment.entity.Comment;
-import com.sparta.ottoon.comment.repository.CommentRepository;
-import com.sparta.ottoon.like.entity.LikeTypeEnum;
 import com.sparta.ottoon.like.service.LikeService;
-import com.sparta.ottoon.post.entity.Post;
-import com.sparta.ottoon.post.repository.PostRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")

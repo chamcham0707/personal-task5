@@ -20,21 +20,19 @@ public class PostResponseDto {
     private Long postId;
     @NotBlank(message = "내용을 입력해 주세요")
     private String contents;
+    private Long likeCount;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedAt;
 
-    public PostResponseDto(Post post) {
-        new PostResponseDto("", 0, post.getId(), post.getContents(), post.getCreatedAt(), post.getModifiedAt());
-    }
-
     //게시글 등록, 수정, 조회
-    public static PostResponseDto toDto(String message, int statusCode, Post post) {
+    public static PostResponseDto toDto(String message, int statusCode, Post post, Long likeCount) {
         return PostResponseDto.builder()
                 .message(message)
                 .statusCode(statusCode)
                 .postId(post.getId())
+                .likeCount(likeCount)
                 .contents(post.getContents())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())

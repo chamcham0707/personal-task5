@@ -6,30 +6,27 @@ import com.sparta.ottoon.comment.entity.Comment;
 import com.sparta.ottoon.comment.repository.CommentRepository;
 import com.sparta.ottoon.common.exception.CustomException;
 import com.sparta.ottoon.common.exception.ErrorCode;
-import com.sparta.ottoon.like.entity.Like;
-import com.sparta.ottoon.like.entity.LikeTypeEnum;
-import com.sparta.ottoon.like.repository.LikeRepository;
+import com.sparta.ottoon.like.entity.CommentLike;
+import com.sparta.ottoon.like.entity.PostLike;
+import com.sparta.ottoon.like.repository.CommentLikeRepository;
+import com.sparta.ottoon.like.repository.PostLikeRepository;
 import com.sparta.ottoon.post.entity.Post;
 import com.sparta.ottoon.post.repository.PostRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class LikeService {
 
-    private final LikeRepository likeRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-
-    public LikeService(LikeRepository likeRepository, UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository) {
-        this.likeRepository = likeRepository;
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
-    }
 
     @Transactional
     public String postlikeOrUnlike(String username, Long postId) {
@@ -38,16 +35,17 @@ public class LikeService {
         if(post.getUser().getId() == user.getId()){
             throw new CustomException(ErrorCode.FAIL_LIKESELF);
         }
-        Optional<Like> existingLike = likeRepository.findByPostAndUser(post, user);
+        Optional<PostLike> existingLike = postLikeRepository.findByUser(user);
         if (existingLike.isPresent()) {
-            likeRepository.delete(existingLike.get());
+            postLikeRepository.delete(existingLike.get());
             return "게시글 좋아요 삭제 완료";
         } else {
-            Like like = new Like(user, post, null, LikeTypeEnum.POST_TYPE);
-            likeRepository.save(like);
+            PostLike like = new PostLike(user, post);
+            postLikeRepository.save(like);
             return "게시글 좋아요 완료";
         }
     }
+
     @Transactional
     public String commentlikeOrUnlike(String username,Long commentId){
         Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CustomException(ErrorCode.FAIL_GETCOMMENT));
@@ -55,25 +53,26 @@ public class LikeService {
         if(comment.getUser().getId() == user.getId()){
             throw new CustomException(ErrorCode.FAIL_COMMENTSELF);
         }
-        Optional<Like> existingLike = likeRepository.findByCommentAndUser(comment, user);
+        Optional<CommentLike> existingLike = commentLikeRepository.findByUser(user);
         if (existingLike.isPresent()) {
-            likeRepository.delete(existingLike.get());
+            commentLikeRepository.delete(existingLike.get());
             return "댓글 좋아요 삭제 완료";
         } else {
-            Like like = new Like(user, null, comment, LikeTypeEnum.COMMENT_TYPE);
-            likeRepository.save(like);
+            CommentLike like = new CommentLike(user, comment);
+            commentLikeRepository.save(like);
             return "댓글 좋아요 완료";
         }
     }
+
     public String getLikeComment(Long commentId){
         Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CustomException(ErrorCode.FAIL_GETCOMMENT));
-        Long likes = likeRepository.countByComment(comment);
+        Long likes = commentLikeRepository.countByComment(comment);
         return "commentid" + comment.getId() + "\n좋아요 :" + likes;
     }
 
     public String getLikePost(Long postId){
         Post post = postRepository.findById(postId).orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
-        Long likes = likeRepository.countByPost(post);
+        Long likes = postLikeRepository.countByPost(post);
         return "postId" + post.getId() + "\n좋아요 :" + likes;
     }
 }

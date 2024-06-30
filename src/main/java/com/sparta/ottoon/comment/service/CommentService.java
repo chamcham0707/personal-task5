@@ -9,6 +9,7 @@ import com.sparta.ottoon.comment.entity.Comment;
 import com.sparta.ottoon.comment.repository.CommentRepository;
 import com.sparta.ottoon.common.exception.CustomException;
 import com.sparta.ottoon.common.exception.ErrorCode;
+import com.sparta.ottoon.like.repository.CommentLikeRepository;
 import com.sparta.ottoon.post.entity.Post;
 import com.sparta.ottoon.post.repository.PostRepository;
 import com.sparta.ottoon.profile.service.ProfileService;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final ProfileService profileService;
@@ -41,13 +43,6 @@ public class CommentService {
         Comment saveComment= commentRepository.save(comment);
         return new CommentResponseDto(saveComment);
     }
-//    public CommentResponseDto createComment(Long postId, CommentRequestDto commentRequestDto, String username) {
-//        User user = userRepository.findByUsername(username).orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
-//        Post post = postRepository.findByPostId(postId).orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
-//        Comment comment = new Comment (commentRequestDto.getComment(),user,post);
-//        Comment saveComment= commentRepository.save(comment);
-//        return new CommentResponseDto(saveComment);
-//    }
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getComment(Long postId) {
@@ -56,7 +51,8 @@ public class CommentService {
                 new CustomException(ErrorCode.POST_NOT_FOUND));
         // 해당 post 조회
         List<Comment> commentList = commentRepository.findByPostId(post.getId());
-        return commentList.stream().map(CommentResponseDto::new).toList();
+
+        return commentList.stream().map(c -> new CommentResponseDto(c, commentLikeRepository.countByComment(c))).toList();
     }
 
     @Transactional
@@ -71,6 +67,7 @@ public class CommentService {
         comment.updateComment(commentRequestDto.getComment());
         return new CommentResponseDto(comment);
     }
+
     @Transactional
     public void deleteComment(Long commentId, String username){
         // 해당 comment 찾기

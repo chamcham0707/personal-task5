@@ -35,11 +35,13 @@ public class LikeService {
         if(post.getUser().getId() == user.getId()){
             throw new CustomException(ErrorCode.FAIL_LIKESELF);
         }
-        Optional<PostLike> existingLike = postLikeRepository.findByUser(user);
+        Optional<PostLike> existingLike = postLikeRepository.findByIdAndUser(postId, user);
         if (existingLike.isPresent()) {
+            post.decreaseLikecount();
             postLikeRepository.delete(existingLike.get());
             return "게시글 좋아요 삭제 완료";
         } else {
+            post.increaseLikeCount();
             PostLike like = new PostLike(user, post);
             postLikeRepository.save(like);
             return "게시글 좋아요 완료";

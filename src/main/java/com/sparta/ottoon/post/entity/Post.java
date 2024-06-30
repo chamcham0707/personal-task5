@@ -31,6 +31,8 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private boolean isTop;
 
+    private Long likeCount = 0L;
+
     public Post(String contents) {
         this.contents = contents;
         this.postStatus = PostStatus.GENERAL;
@@ -58,5 +60,13 @@ public class Post extends Timestamped {
             this.postStatus = PostStatus.NOTICE;
             this.isTop = true;
         }
+    }
+
+    public void increaseLikeCount() {
+        ++this.likeCount;
+    }
+
+    public void decreaseLikecount() {
+        --this.likeCount;
     }
 }

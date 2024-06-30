@@ -7,6 +7,9 @@ import com.sparta.ottoon.auth.repository.PasswordLogRepository;
 import com.sparta.ottoon.auth.repository.UserRepository;
 import com.sparta.ottoon.common.exception.CustomException;
 import com.sparta.ottoon.common.exception.ErrorCode;
+import com.sparta.ottoon.like.repository.PostLikeRepository;
+import com.sparta.ottoon.post.dto.PostResponseDto;
+import com.sparta.ottoon.post.entity.Post;
 import com.sparta.ottoon.profile.dto.ProfileRequestDto;
 import com.sparta.ottoon.profile.dto.ProfileResponseDto;
 import com.sparta.ottoon.profile.dto.UserPwRequestDto;
@@ -24,6 +27,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final PasswordLogRepository passwordLogRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional(readOnly = true)
     public ProfileResponseDto getUser(String userName) {
@@ -73,6 +77,14 @@ public class ProfileService {
         }
         //새 비밀번호 encoding 해서 저장
         user.updateUserPassword(passwordEncoder.encode(requestDto.getNewPassword()));
+    }
+
+    public List<PostResponseDto> getPostLikeList(String userName, int pageNumber) {
+        User user = findByUsername(userName);
+
+        List<Post> likePostList = postLikeRepository.findByUserReturnPosts(user, pageNumber, 5);
+
+        return likePostList.stream().map(p -> PostResponseDto.toDto("성공적으로 조회하였습니다.", 200, p)).toList();
     }
 
     private User findByUsername(String userName) {

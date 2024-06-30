@@ -27,12 +27,12 @@ public class PostResponseDto {
     private LocalDateTime modifiedAt;
 
     //게시글 등록, 수정, 조회
-    public static PostResponseDto toDto(String message, int statusCode, Post post, Long likeCount) {
+    public static PostResponseDto toDto(String message, int statusCode, Post post) {
         return PostResponseDto.builder()
                 .message(message)
                 .statusCode(statusCode)
                 .postId(post.getId())
-                .likeCount(likeCount)
+                .likeCount(post.getLikeCount())
                 .contents(post.getContents())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())

@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
-    Optional<PostLike> findByUser(User user);
-
+public interface PostLikeRepository extends JpaRepository<PostLike, Long>, PostLikeRepositoryCustom {
     Long countByPost(Post post);
+
+    Optional<PostLike> findByIdAndUser(Long id, User user);
 }

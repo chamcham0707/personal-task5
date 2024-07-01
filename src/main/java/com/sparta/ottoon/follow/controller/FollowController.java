@@ -45,7 +45,8 @@ public class FollowController {
 
     @GetMapping()
     public ResponseEntity<List<PostResponseDto>> getFollow(@RequestParam int pageNumber,
+                                                           @RequestParam String sortBy,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollow(userDetails.getUsername(), pageNumber));
+        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollow(userDetails.getUsername(), pageNumber, sortBy));
     }
 }

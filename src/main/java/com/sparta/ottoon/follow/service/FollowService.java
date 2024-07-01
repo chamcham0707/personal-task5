@@ -1,5 +1,7 @@
 package com.sparta.ottoon.follow.service;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.sparta.ottoon.auth.entity.User;
 import com.sparta.ottoon.auth.repository.UserRepository;
 import com.sparta.ottoon.auth.service.UserService;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -63,12 +66,18 @@ public class FollowService {
         return new ProfileResponseDto(followedUser);
     }
 
-    public List<PostResponseDto> getFollow(String username, int pageNumber) {
+    public List<PostResponseDto> getFollow(String username, int pageNumber, String sortBy) {
         User user = userRepository.findByUsername(username).orElseThrow(() ->
                 new CustomException(ErrorCode.FAIL_FIND_USER)
         );
 
-        List<Post> followPostList = followRepository.findByAllFollowPostList(user, pageNumber, 5);
+        PathBuilder<Post> postPath = new PathBuilder<>(Post.class, "post");
+        OrderSpecifier<?> orderSpecifier = postPath.getDateTime("createdAt", java.util.Date.class).desc();
+        if (Objects.equals(sortBy, "writerName")) {
+            orderSpecifier = postPath.get("user").getString("username").asc();
+        }
+
+        List<Post> followPostList = followRepository.findByAllFollowPostList(user, pageNumber, 5, orderSpecifier);
 
         return followPostList.stream().map(f -> PostResponseDto.toDto("성공적으로 조회하였습니다.", 200, f)).toList();
     }

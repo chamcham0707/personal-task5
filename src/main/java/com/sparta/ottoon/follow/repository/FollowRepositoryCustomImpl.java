@@ -1,5 +1,6 @@
 package com.sparta.ottoon.follow.repository;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.ottoon.auth.entity.QUser;
 import com.sparta.ottoon.auth.entity.User;
@@ -17,7 +18,7 @@ public class FollowRepositoryCustomImpl implements FollowRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Post> findByAllFollowPostList(User followUser, int pageNumber, int pageSize) {
+    public List<Post> findByAllFollowPostList(User followUser, int pageNumber, int pageSize, OrderSpecifier<?> orderSpecifier) {
         QUser user = QUser.user;
         QFollow follow = QFollow.follow;
         QPost post = QPost.post;
@@ -29,7 +30,8 @@ public class FollowRepositoryCustomImpl implements FollowRepositoryCustom {
                 .join(follow).on(user.id.eq(follow.followedUserId))
                 .join(post).on(follow.followedUserId.eq(post.user.id))
                 .where(follow.followUser.id.eq(followUser.getId()))
-                .orderBy(post.createdAt.desc())
+//                .orderBy(post.createdAt.desc())
+                .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

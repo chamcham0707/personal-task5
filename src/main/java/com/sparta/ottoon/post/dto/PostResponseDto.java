@@ -18,6 +18,7 @@ public class PostResponseDto {
     private String message;
     private int statusCode;
     private Long postId;
+    private String writer;
     @NotBlank(message = "내용을 입력해 주세요")
     private String contents;
     private int likeCount;
@@ -32,6 +33,7 @@ public class PostResponseDto {
                 .message(message)
                 .statusCode(statusCode)
                 .postId(post.getId())
+                .writer(post.getUser().getUsername())
                 .likeCount(post.getLikeCount())
                 .contents(post.getContents())
                 .createdAt(post.getCreatedAt())

@@ -13,25 +13,17 @@ public class Follow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
 
-    @Column(name = "follow_check", nullable = false)
-    boolean isFollow;
-
-    @Column(name = "follow_user_id",nullable = false)
-    long userId;
+    @Column(name = "followed_user_id",nullable = false)
+    Long followedUserId;
 
     @ManyToOne
-    @JoinColumn(name = "followed_user_id")
+    @JoinColumn(name = "follow_user_id")
     User followUser;
 
-    public Follow(boolean isFollow, long userId, User followUser) {
-        this.isFollow = isFollow;
-        this.userId = userId;
+    public Follow(User followUser, Long followedUserId) {
         this.followUser = followUser;
-    }
-
-    public void changeFollow(boolean isFollow){
-        this.isFollow = isFollow;
+        this.followedUserId = followedUserId;
     }
 }

@@ -1,13 +1,17 @@
 package com.sparta.ottoon.follow.service;
 
 import com.sparta.ottoon.auth.entity.User;
+import com.sparta.ottoon.auth.repository.UserRepository;
 import com.sparta.ottoon.auth.service.UserService;
 import com.sparta.ottoon.common.exception.CustomException;
 import com.sparta.ottoon.common.exception.ErrorCode;
 import com.sparta.ottoon.follow.entity.Follow;
 import com.sparta.ottoon.follow.repository.FollowRepository;
+import com.sparta.ottoon.post.dto.PostResponseDto;
+import com.sparta.ottoon.post.entity.Post;
 import com.sparta.ottoon.profile.dto.ProfileResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,57 +24,64 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @Transactional
-    public ProfileResponseDto followUser(long followId, User user) {
+    public ProfileResponseDto followUser(long followedId, String username) {
+        User followUser = findByUsername(username);
 
-        if (followId == user.getId()) {
+        if (followedId == followUser.getId()) {
             throw new CustomException(ErrorCode.NOT_SELF_FOLLOW);
         }
 
-        User followUser = userService.findById(followId);
+        User followedUser = userService.findById(followedId);
+        Follow newFollow = new Follow(followUser, followedUser.getId());
 
-
-        Follow newFollow = new Follow(true, user.getId(), followUser);
-
-        if (!isAleadyFollow(followId, user)) {
-            followRepository.save(newFollow);
+        if (isFollow(followUser, followedUser)) {
+            throw new CustomException(ErrorCode.BAD_FOLLOW);
         }
 
-        return new ProfileResponseDto(followUser);
+        followRepository.save(newFollow);
+
+        return new ProfileResponseDto(followedUser);
     }
 
     @Transactional
-    public ProfileResponseDto followCancel(long followId, User user) {
+    public ProfileResponseDto followCancel(Long followId, String username) {
+        User followUser = findByUsername(username);
+        User followedUser = userService.findById(followId);
 
-        User followUser = userService.findById(followId);
-        Follow cancelFollow = followRepository.findByFollowUserAndUserId(followUser, user.getId()).orElseThrow(() ->
+        Follow cancelFollow = followRepository.findByFollowUserAndFollowedUserId(followUser, followedUser.getId()).orElseThrow(() ->
                 new CustomException(ErrorCode.FAIL_FIND_USER));
 
-        if (cancelFollow.isFollow()) {
-            cancelFollow.changeFollow(false);
-        } else {
+        if (!isFollow(followUser, followedUser)) {
             throw new CustomException(ErrorCode.NOT_FOLLOW);
         }
 
-        return new ProfileResponseDto(cancelFollow.getFollowUser());
+        followRepository.delete(cancelFollow);
+
+        return new ProfileResponseDto(followedUser);
     }
 
-    public List<Follow> getFollowList(long userId) {
-        return followRepository.findAllByFollowUserId(userId);
+    public List<PostResponseDto> getFollow(String username, int pageNumber) {
+        User user = userRepository.findByUsername(username).orElseThrow(() ->
+                new CustomException(ErrorCode.FAIL_FIND_USER)
+        );
+
+        List<Post> followPostList = followRepository.findByAllFollowPostList(user, pageNumber, 5);
+
+        return followPostList.stream().map(f -> PostResponseDto.toDto("성공적으로 조회하였습니다.", 200, f)).toList();
     }
 
-    @Transactional
-    private boolean isAleadyFollow(long followId, User user) {
-        User followUser = userService.findById(followId);
-        Optional<Follow> curFollow = followRepository.findByFollowUserAndUserId(followUser, user.getId());
+    private User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private boolean isFollow(User followUser, User followedUser) {
+        Optional<Follow> curFollow = followRepository.findByFollowUserAndFollowedUserId(followUser, followedUser.getId());
         if (curFollow.isPresent()) {
-            if (curFollow.get().isFollow()) {
-                throw new CustomException(ErrorCode.BAD_FOLLOW);
-            } else {
-                curFollow.get().changeFollow(true);
-                return true;
-            }
+            return true;
         }
         return false;
     }

@@ -14,6 +14,7 @@ public class ProfileResponseDto {
     private String status;
     private int postLikeCount = 0;
     private int commentLikeCount = 0;
+    private int follower = 0;
 
     public ProfileResponseDto(User user) {
         this.username = user.getUsername();
@@ -23,5 +24,6 @@ public class ProfileResponseDto {
         this.status = user.getStatus().getStatus();
         this.postLikeCount = user.getPostLikeCount();
         this.commentLikeCount = user.getCommentLikeCount();
+        this.follower = user.getFollower();
     }
 }

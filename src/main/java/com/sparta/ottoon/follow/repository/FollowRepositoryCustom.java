@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface FollowRepositoryCustom {
     List<Post> findByAllFollowPostList(User followUser, int pageNumber, int pageSize, OrderSpecifier<?> orderSpecifier);
+
+    List<User> findTopTen();
 }

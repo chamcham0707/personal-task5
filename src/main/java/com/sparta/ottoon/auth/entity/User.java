@@ -40,6 +40,7 @@ public class User extends Timestamped implements UserDetails {
     private Long kakaoId;
     private int postLikeCount = 0;
     private int commentLikeCount = 0;
+    private int follower = 0;
 
     public User(String username, String nickname, String password, String email, UserStatus status) {
         this.username = username;
@@ -103,7 +104,7 @@ public class User extends Timestamped implements UserDetails {
     }
 
     public void decreasePostLikeCount() {
-        if (postLikeCount <= 0) {
+        if (this.postLikeCount <= 0) {
             throw new IllegalStateException("User::postLikeCount is 0 or under");
         }
         --this.postLikeCount;
@@ -114,9 +115,20 @@ public class User extends Timestamped implements UserDetails {
     }
 
     public void decreaseCommentLikeCount() {
-        if (commentLikeCount <= 0) {
+        if (this.commentLikeCount <= 0) {
             throw new IllegalStateException("User::commentLikeCount is 0 or under");
         }
         --this.commentLikeCount;
+    }
+
+    public void increaseFollower() {
+        ++this.follower;
+    }
+
+    public void decreaseFollower() {
+        if (this.follower <= 0) {
+            throw new IllegalStateException("User::follower is 0 or under");
+        }
+        --this.follower;
     }
 }

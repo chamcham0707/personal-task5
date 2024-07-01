@@ -49,4 +49,9 @@ public class FollowController {
                                                            @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.OK).body(followService.getFollow(userDetails.getUsername(), pageNumber, sortBy));
     }
+
+    @GetMapping("/topten")
+    public ResponseEntity<List<ProfileResponseDto>> getTopTen() {
+        return ResponseEntity.status(HttpStatus.OK).body(followService.getTopTen());
+    }
 }

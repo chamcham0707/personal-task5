@@ -9,6 +9,7 @@ import com.sparta.ottoon.comment.dto.CommentResponseDto;
 import com.sparta.ottoon.comment.entity.Comment;
 import com.sparta.ottoon.common.exception.CustomException;
 import com.sparta.ottoon.common.exception.ErrorCode;
+import com.sparta.ottoon.follow.repository.FollowRepository;
 import com.sparta.ottoon.like.repository.CommentLikeRepository;
 import com.sparta.ottoon.like.repository.PostLikeRepository;
 import com.sparta.ottoon.post.dto.PostResponseDto;

@@ -30,10 +30,20 @@ public class FollowRepositoryCustomImpl implements FollowRepositoryCustom {
                 .join(follow).on(user.id.eq(follow.followedUserId))
                 .join(post).on(follow.followedUserId.eq(post.user.id))
                 .where(follow.followUser.id.eq(followUser.getId()))
-//                .orderBy(post.createdAt.desc())
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    @Override
+    public List<User> findTopTen() {
+        QUser user = QUser.user;
+
+        return jpaQueryFactory
+                .selectFrom(user)
+                .orderBy(user.follower.desc())
+                .limit(10)
                 .fetch();
     }
 }

@@ -21,19 +21,19 @@ import java.util.List;
 @Tag(name = "Profile API", description = "Profile API 입니다")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users/{userName}")
+@RequestMapping("/api/users")
 public class ProfileController {
 
     private final ProfileService userService;
 
     @Operation(summary = "getUser", description = "프로필 조회 기능입니다.")
-    @GetMapping()
+    @GetMapping("/{userName}")
     public ResponseEntity<ProfileResponseDto> getUser(@PathVariable String userName){
         return ResponseEntity.ok().body(userService.getUser(userName));
     }
 
     @Operation(summary = "updateUser", description = "프로필 수정 기능입니다.")
-    @PostMapping()
+    @PostMapping("/{userName}")
     public ResponseEntity<ProfileResponseDto> updateUser(@PathVariable String userName,
                                                          @AuthenticationPrincipal UserDetails userDetails,
                                                          @RequestBody ProfileRequestDto requestDto){
@@ -41,7 +41,7 @@ public class ProfileController {
     }
 
     @Operation(summary = "updateUserPassword", description = "비밀번호 변경 기능입니다.")
-    @PostMapping("/password")
+    @PostMapping("/{userName}/password")
     public ResponseEntity<String> updateUserPassword(@PathVariable String userName,
                                                      @AuthenticationPrincipal UserDetails userDetails,
                                                      @RequestBody @Valid UserPwRequestDto requestDto){
@@ -49,13 +49,13 @@ public class ProfileController {
         return ResponseEntity.ok().body("비밀번호가 정상적으로 변경되었습니다.");
     }
 
-    @GetMapping("/postLikeList")
+    @GetMapping("/{userName}/postLikeList")
     public ResponseEntity<List<PostResponseDto>> getPostLikeList(@PathVariable String userName,
                                                                  @RequestParam int pageNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getPostLikeList(userName, pageNumber));
     }
 
-    @GetMapping("/commentLikeList")
+    @GetMapping("/{userName}/commentLikeList")
     public ResponseEntity<List<CommentResponseDto>> getCommentLikeList(@PathVariable String userName,
                                                                        @RequestParam int pageNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getCommentLikeList(userName, pageNumber));

@@ -44,6 +44,7 @@ public class FollowService {
             throw new CustomException(ErrorCode.BAD_FOLLOW);
         }
 
+        followedUser.increaseFollower();
         followRepository.save(newFollow);
 
         return new ProfileResponseDto(followedUser);
@@ -61,6 +62,7 @@ public class FollowService {
             throw new CustomException(ErrorCode.NOT_FOLLOW);
         }
 
+        followedUser.decreaseFollower();
         followRepository.delete(cancelFollow);
 
         return new ProfileResponseDto(followedUser);
@@ -80,6 +82,12 @@ public class FollowService {
         List<Post> followPostList = followRepository.findByAllFollowPostList(user, pageNumber, 5, orderSpecifier);
 
         return followPostList.stream().map(f -> PostResponseDto.toDto("성공적으로 조회하였습니다.", 200, f)).toList();
+    }
+
+    public List<ProfileResponseDto> getTopTen() {
+        List<User> topTen = followRepository.findTopTen();
+
+        return topTen.stream().map(ProfileResponseDto::new).toList();
     }
 
     private User findByUsername(String username) {

@@ -35,9 +35,26 @@ public class LikeService {
         if(post.getUser().getId() == user.getId()){
             throw new CustomException(ErrorCode.FAIL_LIKESELF);
         }
-        Optional<PostLike> existingLike = postLikeRepository.findByIdAndUser(postId, user);
+
+        return postSetLike(post, user);
+    }
+
+    @Transactional
+    public String commentlikeOrUnlike(String username,Long commentId){
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CustomException(ErrorCode.FAIL_GETCOMMENT));
+        User user = userRepository.findByUsername(username).orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+        if(comment.getUser().getId() == user.getId()){
+            throw new CustomException(ErrorCode.FAIL_COMMENTSELF);
+        }
+
+        return commentSetLike(comment, user);
+    }
+
+    private String postSetLike(Post post, User user) {
+        Optional<PostLike> existingLike = postLikeRepository.findByIdAndUser(post.getId(), user);
+
         if (existingLike.isPresent()) {
-            post.decreaseLikecount();
+            post.decreaseLikeCount();
             user.decreasePostLikeCount();
             postLikeRepository.delete(existingLike.get());
             return "게시글 좋아요 삭제 완료";
@@ -50,13 +67,7 @@ public class LikeService {
         }
     }
 
-    @Transactional
-    public String commentlikeOrUnlike(String username,Long commentId){
-        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CustomException(ErrorCode.FAIL_GETCOMMENT));
-        User user = userRepository.findByUsername(username).orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
-        if(comment.getUser().getId() == user.getId()){
-            throw new CustomException(ErrorCode.FAIL_COMMENTSELF);
-        }
+    private String commentSetLike(Comment comment, User user) {
         Optional<CommentLike> existingLike = commentLikeRepository.findByIdAndUser(comment.getId(), user);
         if (existingLike.isPresent()) {
             comment.decreaseLikeCount();

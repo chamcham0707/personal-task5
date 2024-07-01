@@ -5,8 +5,6 @@ import com.sparta.ottoon.common.Timestamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.http.ResponseEntity;
 
 @Entity
 @Getter
@@ -66,7 +64,11 @@ public class Post extends Timestamped {
         ++this.likeCount;
     }
 
-    public void decreaseLikecount() {
+    public void decreaseLikeCount() {
+        if (this.likeCount <= 0) {
+            throw new IllegalStateException("Post::likeCount is 0 or under");
+        }
+
         --this.likeCount;
     }
 }

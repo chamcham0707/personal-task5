@@ -1,6 +1,5 @@
 package com.sparta.ottoon.like.repository;
 
-import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.ottoon.auth.entity.User;
 import com.sparta.ottoon.comment.entity.Comment;
@@ -23,7 +22,7 @@ public class CommentLikeRepositoryCustomImpl implements CommentLikeRepositoryCus
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        QueryResults<Comment> results = jpaQueryFactory
+        return jpaQueryFactory
                 .select(comment)
                 .from(commentLike)
                 .join(commentLike.comment, comment)
@@ -31,8 +30,6 @@ public class CommentLikeRepositoryCustomImpl implements CommentLikeRepositoryCus
                 .orderBy(comment.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetchResults();
-
-        return results.getResults();
+                .fetch();
     }
 }

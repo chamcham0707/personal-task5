@@ -103,6 +103,9 @@ public class User extends Timestamped implements UserDetails {
     }
 
     public void decreasePostLikeCount() {
+        if (postLikeCount <= 0) {
+            throw new IllegalStateException("User::postLikeCount is 0 or under");
+        }
         --this.postLikeCount;
     }
 
@@ -111,6 +114,9 @@ public class User extends Timestamped implements UserDetails {
     }
 
     public void decreaseCommentLikeCount() {
+        if (commentLikeCount <= 0) {
+            throw new IllegalStateException("User::commentLikeCount is 0 or under");
+        }
         --this.commentLikeCount;
     }
 }

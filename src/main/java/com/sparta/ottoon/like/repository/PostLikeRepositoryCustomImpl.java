@@ -1,6 +1,5 @@
 package com.sparta.ottoon.like.repository;
 
-import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.ottoon.auth.entity.User;
 import com.sparta.ottoon.like.entity.QPostLike;

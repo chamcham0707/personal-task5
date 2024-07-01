@@ -45,6 +45,9 @@ public class Comment extends Timestamped {
     }
 
     public void decreaseLikeCount() {
+        if (this.likeCount <= 0) {
+            throw new IllegalStateException("Comment::likeCount is 0 or under");
+        }
         --this.likeCount;
     }
 }

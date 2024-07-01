@@ -24,7 +24,12 @@ public class FollowService {
     @Transactional
     public ProfileResponseDto followUser(long followId, User user) {
 
+        if (followId == user.getId()) {
+            throw new CustomException(ErrorCode.NOT_SELF_FOLLOW);
+        }
+
         User followUser = userService.findById(followId);
+
 
         Follow newFollow = new Follow(true, user.getId(), followUser);
 
@@ -56,7 +61,7 @@ public class FollowService {
     }
 
     @Transactional
-    public boolean isAleadyFollow(long followId, User user) {
+    private boolean isAleadyFollow(long followId, User user) {
         User followUser = userService.findById(followId);
         Optional<Follow> curFollow = followRepository.findByFollowUserAndUserId(followUser, user.getId());
         if (curFollow.isPresent()) {

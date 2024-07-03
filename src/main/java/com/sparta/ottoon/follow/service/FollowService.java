@@ -25,23 +25,24 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FollowService {
+    private static final int PAGE_SIZE= 5;
 
     private final FollowRepository followRepository;
     private final UserService userService;
     private final UserRepository userRepository;
 
     @Transactional
-    public ProfileResponseDto followUser(Long followId, String username) {
+    public ProfileResponseDto followUser(Long followedId, String username) {
         User followUser = findByUsername(username);
 
-        if (followId == followUser.getId()) {
+        if (followedId == followUser.getId()) {
             throw new CustomException(ErrorCode.NOT_SELF_FOLLOW);
         }
 
-        User followedUser = userService.findById(followId);
-        Follow newFollow = new Follow(followUser, followId);
+        User followedUser = userService.findById(followedId);
+        Follow newFollow = new Follow(followUser, followedId);
 
-        if (isFollow(followUser, followId)) {
+        if (returnFollow(followUser, followedId) != null) {
             throw new CustomException(ErrorCode.BAD_FOLLOW);
         }
 
@@ -52,14 +53,13 @@ public class FollowService {
     }
 
     @Transactional
-    public ProfileResponseDto followCancel(Long followId, String username) {
+    public ProfileResponseDto followCancel(Long followedId, String username) {
         User followUser = findByUsername(username);
-        User followedUser = userService.findById(followId);
+        User followedUser = userService.findById(followedId);
 
-        Follow cancelFollow = followRepository.findByFollowUserAndFollowedUserId(followUser, followedUser.getId()).orElseThrow(() ->
-                new CustomException(ErrorCode.FAIL_FIND_USER));
+        Follow cancelFollow = returnFollow(followUser, followedId);
 
-        if (!isFollow(followUser, followId)) {
+        if (cancelFollow == null) {
             throw new CustomException(ErrorCode.NOT_FOLLOW);
         }
 
@@ -70,7 +70,6 @@ public class FollowService {
     }
 
     public List<PostResponseDto> getFollow(String username, int pageNumber, String sortBy, String authorName) {
-
         List<Post> postList;
         if (authorName != null) {
             postList = authorNameSearchCondition(authorName, pageNumber);
@@ -89,7 +88,7 @@ public class FollowService {
 
     private List<Post> authorNameSearchCondition(String authorName, int pageNumber) {
         FollowerSearchCond cond = new FollowerSearchCond(authorName);
-        return followRepository.findByCondition(cond, pageNumber, 5);
+        return followRepository.findByCondition(cond, pageNumber, PAGE_SIZE);
     }
 
     private List<Post> defaultOrWriterSort(String username, String sortBy, int pageNumber) {
@@ -101,7 +100,7 @@ public class FollowService {
             orderSpecifier = postPath.get("user").getString("username").asc();
         }
 
-        return followRepository.findByAllFollowPostList(user, pageNumber, 5, orderSpecifier);
+        return followRepository.findByAllFollowPostList(user, pageNumber, PAGE_SIZE, orderSpecifier);
     }
 
     private User findByUsername(String username) {
@@ -109,11 +108,11 @@ public class FollowService {
                 new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
-    private boolean isFollow(User followUser, Long followedId) {
+    private Follow returnFollow(User followUser, Long followedId) {
         Optional<Follow> curFollow = followRepository.findByFollowUserAndFollowedUserId(followUser, followedId);
         if (curFollow.isPresent()) {
-            return true;
+            return curFollow.get();
         }
-        return false;
+        return null;
     }
 }

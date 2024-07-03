@@ -1,6 +1,7 @@
 package com.sparta.ottoon.auth.entity;
 
 import com.sparta.ottoon.common.Timestamped;
+import com.sparta.ottoon.post.entity.Post;
 import com.sparta.ottoon.profile.dto.ProfileRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name="users")
@@ -35,6 +37,8 @@ public class User extends Timestamped implements UserDetails {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserStatus status;
+    @OneToMany
+    private List<Post> posts = new ArrayList<>();
     @Column
     private String refreshToken;
     private Long kakaoId;
@@ -71,6 +75,10 @@ public class User extends Timestamped implements UserDetails {
         grantedAuthorities.add(grantedAuthority);
 
         return grantedAuthorities;
+    }
+
+    public void updatePost(Post post) {
+        this.posts.add(post);
     }
 
     public void updateRefresh(String refresh) {

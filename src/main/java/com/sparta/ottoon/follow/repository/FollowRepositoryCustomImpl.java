@@ -18,6 +18,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class FollowRepositoryCustomImpl implements FollowRepositoryCustom {
+
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override

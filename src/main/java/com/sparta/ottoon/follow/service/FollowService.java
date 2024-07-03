@@ -8,6 +8,7 @@ import com.sparta.ottoon.auth.service.UserService;
 import com.sparta.ottoon.common.exception.CustomException;
 import com.sparta.ottoon.common.exception.ErrorCode;
 import com.sparta.ottoon.follow.entity.Follow;
+import com.sparta.ottoon.follow.filter.FollowerSearchCond;
 import com.sparta.ottoon.follow.repository.FollowRepository;
 import com.sparta.ottoon.post.dto.PostResponseDto;
 import com.sparta.ottoon.post.entity.Post;
@@ -30,17 +31,17 @@ public class FollowService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ProfileResponseDto followUser(long followedId, String username) {
+    public ProfileResponseDto followUser(Long followId, String username) {
         User followUser = findByUsername(username);
 
-        if (followedId == followUser.getId()) {
+        if (followId == followUser.getId()) {
             throw new CustomException(ErrorCode.NOT_SELF_FOLLOW);
         }
 
-        User followedUser = userService.findById(followedId);
-        Follow newFollow = new Follow(followUser, followedUser.getId());
+        User followedUser = userService.findById(followId);
+        Follow newFollow = new Follow(followUser, followId);
 
-        if (isFollow(followUser, followedUser)) {
+        if (isFollow(followUser, followId)) {
             throw new CustomException(ErrorCode.BAD_FOLLOW);
         }
 
@@ -58,7 +59,7 @@ public class FollowService {
         Follow cancelFollow = followRepository.findByFollowUserAndFollowedUserId(followUser, followedUser.getId()).orElseThrow(() ->
                 new CustomException(ErrorCode.FAIL_FIND_USER));
 
-        if (!isFollow(followUser, followedUser)) {
+        if (!isFollow(followUser, followId)) {
             throw new CustomException(ErrorCode.NOT_FOLLOW);
         }
 
@@ -68,20 +69,16 @@ public class FollowService {
         return new ProfileResponseDto(followedUser);
     }
 
-    public List<PostResponseDto> getFollow(String username, int pageNumber, String sortBy) {
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new CustomException(ErrorCode.FAIL_FIND_USER)
-        );
+    public List<PostResponseDto> getFollow(String username, int pageNumber, String sortBy, String authorName) {
 
-        PathBuilder<Post> postPath = new PathBuilder<>(Post.class, "post");
-        OrderSpecifier<?> orderSpecifier = postPath.getDateTime("createdAt", java.util.Date.class).desc();
-        if (Objects.equals(sortBy, "writerName")) {
-            orderSpecifier = postPath.get("user").getString("username").asc();
+        List<Post> postList;
+        if (authorName != null) {
+            postList = authorNameSearchCondition(authorName, pageNumber);
+        } else {
+            postList = defaultOrWriterSort(username, sortBy, pageNumber);
         }
 
-        List<Post> followPostList = followRepository.findByAllFollowPostList(user, pageNumber, 5, orderSpecifier);
-
-        return followPostList.stream().map(f -> PostResponseDto.toDto("성공적으로 조회하였습니다.", 200, f)).toList();
+        return postList.stream().map(f -> PostResponseDto.toDto("성공적으로 조회하였습니다.", 200, f)).toList();
     }
 
     public List<ProfileResponseDto> getTopTen() {
@@ -90,13 +87,30 @@ public class FollowService {
         return topTen.stream().map(ProfileResponseDto::new).toList();
     }
 
+    private List<Post> authorNameSearchCondition(String authorName, int pageNumber) {
+        FollowerSearchCond cond = new FollowerSearchCond(authorName);
+        return followRepository.findByCondition(cond, pageNumber, 5);
+    }
+
+    private List<Post> defaultOrWriterSort(String username, String sortBy, int pageNumber) {
+        User user = findByUsername(username);
+
+        PathBuilder<Post> postPath = new PathBuilder<>(Post.class, "post");
+        OrderSpecifier<?> orderSpecifier = postPath.getDateTime("createdAt", java.util.Date.class).desc();
+        if (Objects.equals(sortBy, "writerName")) {
+            orderSpecifier = postPath.get("user").getString("username").asc();
+        }
+
+        return followRepository.findByAllFollowPostList(user, pageNumber, 5, orderSpecifier);
+    }
+
     private User findByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
-    private boolean isFollow(User followUser, User followedUser) {
-        Optional<Follow> curFollow = followRepository.findByFollowUserAndFollowedUserId(followUser, followedUser.getId());
+    private boolean isFollow(User followUser, Long followedId) {
+        Optional<Follow> curFollow = followRepository.findByFollowUserAndFollowedUserId(followUser, followedId);
         if (curFollow.isPresent()) {
             return true;
         }

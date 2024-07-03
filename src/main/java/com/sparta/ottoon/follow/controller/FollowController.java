@@ -44,10 +44,11 @@ public class FollowController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<PostResponseDto>> getFollow(@RequestParam int pageNumber,
-                                                           @RequestParam String sortBy,
+    public ResponseEntity<List<PostResponseDto>> getFollow(@RequestParam(defaultValue = "0", required = false) int pageNumber,
+                                                           @RequestParam(defaultValue = "true", required = false) String sortBy,
+                                                           @RequestParam(required = false) String authorName,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollow(userDetails.getUsername(), pageNumber, sortBy));
+        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollow(userDetails.getUsername(), pageNumber, sortBy, authorName));
     }
 
     @GetMapping("/topten")

@@ -1,10 +1,13 @@
 package com.sparta.ottoon.follow.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.ottoon.auth.entity.QUser;
 import com.sparta.ottoon.auth.entity.User;
 import com.sparta.ottoon.follow.entity.QFollow;
+import com.sparta.ottoon.follow.filter.FollowerSearchCond;
+import com.sparta.ottoon.post.dto.PostResponseDto;
 import com.sparta.ottoon.post.entity.Post;
 import com.sparta.ottoon.post.entity.QPost;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,26 @@ public class FollowRepositoryCustomImpl implements FollowRepositoryCustom {
                 .selectFrom(user)
                 .orderBy(user.follower.desc())
                 .limit(10)
+                .fetch();
+    }
+
+    @Override
+    public List<Post> findByCondition(FollowerSearchCond cond, int pageNumber, int pageSize) {
+        QPost post = QPost.post;
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if (cond.getAuthorName() != null) {
+            builder.and(post.user.username.eq(cond.getAuthorName()));
+        }
+
+        return jpaQueryFactory
+                .selectFrom(post)
+                .where(builder)
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
     }
 }
